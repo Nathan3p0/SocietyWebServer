@@ -2,5 +2,5 @@
 
 ## Contributors
 
-** Nathan Szelag **
-** Dora Gil **
+**Nathan Szelag**
+**Dora Gil**
