@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 
 const authService = {
+    getUserWithUserName(knex, username) {
+        return knex('members').where({ username }).first()
+    },
     comparePassword(password, hash) {
         return bcrypt.compare(password, hash);
     },
