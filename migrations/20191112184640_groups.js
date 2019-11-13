@@ -4,6 +4,7 @@ exports.up = function (knex) {
         group.increments();
         group.string('group_name').notNullable();
         group.string('invite_code').notNullable();
+        group.integer('group_admin').references('members.id').onDelete('cascade');
     })
 };
 

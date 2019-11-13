@@ -1,10 +1,9 @@
 
 exports.up = function (knex) {
     return knex.schema.createTable('group_members', (groupMember) => {
+        groupMember.increments();
         groupMember.integer('member_id').references('members.id').onDelete('cascade');
         groupMember.integer('group_id').references('groups.id').onDelete('cascade');
-        groupMember.integer('group_admin').references('members.id').onDelete('cascade');
-        groupMember.primary(['member_id', 'group_id']);
     })
 };
 
