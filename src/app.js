@@ -27,7 +27,7 @@ const errorHandler = (error, req, res, next) => {
 app.use(errorHandler);
 
 app.get('/', (req, res) => {
-    res.status(200).send('Hello, boilerplate!');
+    res.status(200).send('Hello and welcome to Society Web Server');
 })
 
 module.exports = app;
