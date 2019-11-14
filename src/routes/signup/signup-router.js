@@ -32,47 +32,86 @@ signupRouter.post('/admin', jsonBodyParser, (req, res, next) => {
                     { error: 'Username is already taken.' }
                 );
             }
-        })
-
-    signUpServices.hasGroupWithGroupName(db, group_name)
-        .then(hasGroupWithGroupName => {
-            if (hasGroupWithGroupName) {
-                return res.status(400).json(
-                    { error: 'Club name is already taken.' }
-                );
-            }
-        })
-
-    signUpServices.hashPassword(password)
-        .then(hashedPassword => {
-            const newAdmin = {
-                full_name,
-                username,
-                password: hashedPassword,
-                email,
-                phone
-            }
-
-            return signUpServices.insertAdmin(db, newAdmin)
-                .then(admin => {
-                    return admin;
-                })
-                .then(admin => {
-                    const newGroup = {
-                        group_name,
-                        group_admin: admin.id,
-                        invite_code: uuidv4()
+            return signUpServices.hasGroupWithGroupName(db, group_name)
+                .then(hasGroupWithGroupName => {
+                    if (hasGroupWithGroupName) {
+                        return res.status(400).json(
+                            { error: 'Club name is already taken.' }
+                        );
                     }
 
-                    return signUpServices.insertGroup(db, newGroup)
-                        .then(group => {
-                            return res.status(201)
-                                .location(path.posix.join(req.originalUrl, `/admin/${admin.id}`))
-                                .json(signUpServices.serializeAdmin(admin))
+                    return signUpServices.hashPassword(password)
+                        .then(hashedPassword => {
+                            const newAdmin = {
+                                full_name,
+                                username,
+                                password: hashedPassword,
+                                email,
+                                phone
+                            }
+
+                            return signUpServices.insertAdmin(db, newAdmin)
+                                .then(admin => {
+                                    return admin;
+                                })
+                                .then(admin => {
+                                    const newGroup = {
+                                        group_name,
+                                        group_admin: admin.id,
+                                        invite_code: uuidv4()
+                                    }
+
+                                    return signUpServices.insertGroup(db, newGroup)
+                                        .then(group => {
+                                            return res.status(201)
+                                                .location(path.posix.join(req.originalUrl, `/admin/${admin.id}`))
+                                                .json(signUpServices.serializeAdmin(admin))
+                                        });
+                                })
                         })
                 })
         })
         .catch(next);
+
+    // signUpServices.hasGroupWithGroupName(db, group_name)
+    //     .then(hasGroupWithGroupName => {
+    //         if (hasGroupWithGroupName) {
+    //             return res.status(400).json(
+    //                 { error: 'Club name is already taken.' }
+    //             );
+    //         }
+    //     })
+
+    // signUpServices.hashPassword(password)
+    //     .then(hashedPassword => {
+    //         const newAdmin = {
+    //             full_name,
+    //             username,
+    //             password: hashedPassword,
+    //             email,
+    //             phone
+    //         }
+
+    //         return signUpServices.insertAdmin(db, newAdmin)
+    //             .then(admin => {
+    //                 return admin;
+    //             })
+    //             .then(admin => {
+    //                 const newGroup = {
+    //                     group_name,
+    //                     group_admin: admin.id,
+    //                     invite_code: uuidv4()
+    //                 }
+
+    //                 return signUpServices.insertGroup(db, newGroup)
+    //                     .then(group => {
+    //                         return res.status(201)
+    //                             .location(path.posix.join(req.originalUrl, `/admin/${admin.id}`))
+    //                             .json(signUpServices.serializeAdmin(admin))
+    //                     })
+    //             })
+    //     })
+    //     .catch(next);
 })
 
 module.exports = signupRouter;
