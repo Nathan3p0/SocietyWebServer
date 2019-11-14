@@ -1,50 +1,78 @@
 const express = require('express');
 const uuidv4 = require('uuid/v4');
 const path = require('path');
+const signUpServices = require('./signup-service');
 const jsonBodyParser = express.json();
-
 const signupRouter = express.Router();
 
 signupRouter.post('/admin', jsonBodyParser, (req, res, next) => {
     const { full_name, username, password, email, phone, group_name } = req.body;
+    const db = req.app.get('db');
 
-    if (!full_name) {
-        return res.status(400).json(
-            { error: 'Please enter a full name.' }
-        );
+    for (const field of ['full_name', 'username', 'password', 'email', 'phone', 'group_name']) {
+        if (!req.body[field]) {
+            return res.status(400).json(
+                { error: `Please enter a ${field}` }
+            )
+        }
     }
 
-    if (!username) {
-        return res.status(400).json(
-            { error: 'Please enter a username.' }
-        );
+    const isPasswordValid = signUpServices.validatePassword(password);
+
+    if (isPasswordValid) {
+        return res.status(400).json({
+            error: isPasswordValid
+        });
     }
 
-    if (!password) {
-        return res.status(400).json(
-            { error: 'Please enter a password.' }
-        );
-    }
+    signUpServices.hasUserWithUsername(db, username)
+        .then(hasUserWithUsername => {
+            if (hasUserWithUsername) {
+                return res.status(400).json(
+                    { error: 'Username is already taken.' }
+                );
+            }
+        })
 
-    if (!email) {
-        return res.status(400).json(
-            { error: 'Please enter an email.' }
-        )
-    }
+    signUpServices.hasGroupWithGroupName(db, group_name)
+        .then(hasGroupWithGroupName => {
+            if (hasGroupWithGroupName) {
+                return res.status(400).json(
+                    { error: 'Club name is already taken.' }
+                );
+            }
+        })
 
-    if (!phone) {
-        return res.status(400).json(
-            { error: 'Please enter a phone number.' }
-        )
-    }
+    signUpServices.hashPassword(password)
+        .then(hashedPassword => {
+            const newAdmin = {
+                full_name,
+                username,
+                password: hashedPassword,
+                email,
+                phone
+            }
 
-    if (!group_name) {
-        return res.status(400).json(
-            { error: 'Please enter a club name.' }
-        )
-    }
+            return signUpServices.insertAdmin(db, newAdmin)
+                .then(admin => {
+                    return admin;
+                })
+                .then(admin => {
+                    const newGroup = {
+                        group_name,
+                        group_admin: admin.id,
+                        invite_code: uuidv4()
+                    }
 
-    res.send('It passed!')
+                    return signUpServices.insertGroup(db, newGroup)
+                        .then(group => {
+                            return res.status(201)
+                                .location(path.posix.join(req.originalUrl, `/admin/${admin.id}`))
+                                .json(signUpServices.serializeAdmin(admin))
+                        })
+                })
+        })
+        .catch(next);
 })
 
 module.exports = signupRouter;
