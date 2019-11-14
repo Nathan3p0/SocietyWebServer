@@ -3,7 +3,7 @@ const AuthService = require('./auth-service')
 const authRouter = express.Router()
 const jsonBodyParser = express.json()
 
-authRouter.post('/login', jsonBodyParser, (req, res, next) => {
+authRouter.post('/', jsonBodyParser, (req, res, next) => {
     const { username, password } = req.body
     const loginUser = { username, password }
 
@@ -36,7 +36,7 @@ authRouter.post('/login', jsonBodyParser, (req, res, next) => {
                     const sub = user.username
 
                     const payload = {
-                        staff_id: user.id
+                        member_id: user.id
                     }
 
                     res.send({
