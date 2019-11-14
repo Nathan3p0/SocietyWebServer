@@ -1,5 +1,4 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const uuidv4 = require('uuid/v4');
 const path = require('path');
 const jsonBodyParser = express.json();
