@@ -50,7 +50,7 @@ signupRouter.post('/admin', jsonBodyParser, (req, res, next) => {
                                 phone
                             }
 
-                            return signUpServices.insertAdmin(db, newAdmin)
+                            return signUpServices.insertMember(db, newAdmin)
                                 .then(admin => {
                                     return admin;
                                 })
@@ -65,7 +65,7 @@ signupRouter.post('/admin', jsonBodyParser, (req, res, next) => {
                                         .then(group => {
                                             return res.status(201)
                                                 .location(path.posix.join(req.originalUrl, `/admin/${admin.id}`))
-                                                .json(signUpServices.serializeAdmin(admin))
+                                                .json(signUpServices.serializeMember(admin))
                                         });
                                 })
                         })
@@ -73,45 +73,20 @@ signupRouter.post('/admin', jsonBodyParser, (req, res, next) => {
         })
         .catch(next);
 
-    // signUpServices.hasGroupWithGroupName(db, group_name)
-    //     .then(hasGroupWithGroupName => {
-    //         if (hasGroupWithGroupName) {
-    //             return res.status(400).json(
-    //                 { error: 'Club name is already taken.' }
-    //             );
-    //         }
-    //     })
 
-    // signUpServices.hashPassword(password)
-    //     .then(hashedPassword => {
-    //         const newAdmin = {
-    //             full_name,
-    //             username,
-    //             password: hashedPassword,
-    //             email,
-    //             phone
-    //         }
+})
 
-    //         return signUpServices.insertAdmin(db, newAdmin)
-    //             .then(admin => {
-    //                 return admin;
-    //             })
-    //             .then(admin => {
-    //                 const newGroup = {
-    //                     group_name,
-    //                     group_admin: admin.id,
-    //                     invite_code: uuidv4()
-    //                 }
+signupRouter.post('/member', (req, res, next) => {
+    const { full_name, username, password, email, phone, invite_code } = req.body;
+    const db = req.app.get('db');
 
-    //                 return signUpServices.insertGroup(db, newGroup)
-    //                     .then(group => {
-    //                         return res.status(201)
-    //                             .location(path.posix.join(req.originalUrl, `/admin/${admin.id}`))
-    //                             .json(signUpServices.serializeAdmin(admin))
-    //                     })
-    //             })
-    //     })
-    //     .catch(next);
+    for (const field of ['full_name', 'username', 'password', 'email', 'phone', 'invite_code']) {
+        if (!req.body[field]) {
+            return res.status(400).json(
+                { error: `Please enter a ${field}` }
+            )
+        }
+    }
 })
 
 module.exports = signupRouter;

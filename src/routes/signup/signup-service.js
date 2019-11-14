@@ -33,12 +33,17 @@ const signupServices = {
             .first()
             .then(group => !!group);
     },
+    findGroupIdByCode(knex, code) {
+        return knex('groups')
+            .where({ code })
+            .first()
+    },
     hashPassword(password) {
         return bcrypt.hash(password, 10);
     },
-    insertAdmin(knex, newAdmin) {
+    insertMember(knex, newMember) {
         return knex('members')
-            .insert(newAdmin)
+            .insert(newMember)
             .returning('*')
             .then(([user]) => {
                 return user;
@@ -52,11 +57,11 @@ const signupServices = {
                 return group;
             });
     },
-    serializeAdmin(admin) {
+    serializeMember(member) {
         return {
-            id: admin.id,
-            full_name: xss(admin.full_name),
-            username: xss(admin.username)
+            id: member.id,
+            full_name: xss(member.full_name),
+            username: xss(member.username)
         }
     }
 }
