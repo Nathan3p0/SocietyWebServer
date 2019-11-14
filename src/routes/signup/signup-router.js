@@ -76,7 +76,7 @@ signupRouter.post('/admin', jsonBodyParser, (req, res, next) => {
 
 })
 
-signupRouter.post('/member', (req, res, next) => {
+signupRouter.post('/member', jsonBodyParser, (req, res, next) => {
     const { full_name, username, password, email, phone, invite_code } = req.body;
     const db = req.app.get('db');
 
@@ -87,6 +87,50 @@ signupRouter.post('/member', (req, res, next) => {
             )
         }
     }
+
+    const isPasswordValid = signUpServices.validatePassword(password);
+
+    if (isPasswordValid) {
+        return res.status(400).json({
+            error: isPasswordValid
+        });
+    }
+
+    signUpServices.hasUserWithUsername(db, username)
+        .then(hasUserWithUsername => {
+            if (hasUserWithUsername) {
+                return res.status(400).json({
+                    error: 'This username is already taken.'
+                });
+            }
+            return signUpServices.hashPassword(password)
+                .then(hashedPassword => {
+                    const newMember = {
+                        full_name,
+                        username,
+                        password: hashedPassword,
+                        email,
+                        phone
+                    }
+                    return signUpServices.findGroupIdByCode(db, invite_code)
+                        .then(group => {
+                            return signUpServices.insertMember(db, newMember)
+                                .then(member => {
+                                    const groupMember = {
+                                        member_id: member.id,
+                                        group_id: group.id
+                                    }
+                                    const newMember = member;
+                                    return signUpServices.insertGroupMember(db, groupMember)
+                                        .then(member => {
+                                            return res.status(201)
+                                                .location(path.posix.join(req.originalUrl, `/member/${newMember.id}`))
+                                                .json(signUpServices.serializeMember(newMember))
+                                        })
+                                })
+                        })
+                })
+        })
 })
 
 module.exports = signupRouter;

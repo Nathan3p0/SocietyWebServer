@@ -33,10 +33,10 @@ const signupServices = {
             .first()
             .then(group => !!group);
     },
-    findGroupIdByCode(knex, code) {
+    findGroupIdByCode(knex, invite_code) {
         return knex('groups')
-            .where({ code })
-            .first()
+            .where({ invite_code })
+            .first();
     },
     hashPassword(password) {
         return bcrypt.hash(password, 10);
@@ -55,6 +55,14 @@ const signupServices = {
             .returning('*')
             .then(([group]) => {
                 return group;
+            });
+    },
+    insertGroupMember(knex, newGroupMember) {
+        return knex('group_members')
+            .insert(newGroupMember)
+            .returning('*')
+            .then(([groupMember]) => {
+                return groupMember;
             });
     },
     serializeMember(member) {
