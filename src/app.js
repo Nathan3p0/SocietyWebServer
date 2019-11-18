@@ -4,10 +4,10 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
-
+const eventsRouter = require('./routes/events/events-router');
 const authRouter = require('./auth/auth-router');
 
-const signupRouter = require('./routes/signup/signup-router')
+const signupRouter = require('./routes/signup/signup-router');
 
 
 const app = express();
@@ -20,7 +20,7 @@ app.use(cors());
 
 
 app.use('/api/login', authRouter)
-
+app.use('/api/events', eventsRouter)
 app.use('/api/signup', signupRouter)
 
 

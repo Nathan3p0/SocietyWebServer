@@ -6,6 +6,7 @@ exports.up = function (knex) {
         event.time('event_time').notNullable();
         event.string('event_name').notNullable();
         event.string('event_description');
+        event.string('event_location');
         event.integer('event_group').references('groups.id').onDelete('cascade');
     })
 };
