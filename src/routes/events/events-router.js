@@ -14,20 +14,16 @@ eventsRouter.get('/', requireAuth, (req, res, next) => {
                     error: `There was no group found.`
                 })
             }
-            return group;
-        })
-        .then(group => {
             return eventsService.findEventsByGroupId(db, group.id)
                 .then(events => {
-                    if (!events || events === []) {
+                    if (!events || events.length === 0) {
                         return res.status(400).json({
                             error: 'There were no events found.'
                         })
                     }
-                    return res.json(events)
+                    return res.status(200).json({ events })
                 })
         })
-        .catch(next)
 })
 
 eventsRouter.post('/', requireAuth, jsonBodyParser, (req, res, next) => {
@@ -35,7 +31,7 @@ eventsRouter.post('/', requireAuth, jsonBodyParser, (req, res, next) => {
     const db = req.app.get('db');
     const user = req.user.id;
 
-    for (const field of ['event_date', 'event_time', 'event_name']) {
+    for (const field of ['event_date', 'event_time', 'event_name', 'event_description', 'event_location']) {
         if (!req.body[field]) {
             return res.status(400).json({
                 error: `Please enter a ${field}`
@@ -65,6 +61,7 @@ eventsRouter.post('/', requireAuth, jsonBodyParser, (req, res, next) => {
 
             return eventsService.postEventsByGroupId(db, group.id, newEvent)
                 .then(event => {
+                    console.log(event)
                     return res
                         .status(201)
                         .location(path.posix.join(req.originalUrl, `/${event.id}`))

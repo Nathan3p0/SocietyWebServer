@@ -5,9 +5,6 @@ const eventsService = {
         return knex('groups')
             .where('group_admin', id)
             .first()
-            .then((group) => {
-                return group;
-            });
     },
     findEventsByGroupId(knex, id) {
         return knex('events')

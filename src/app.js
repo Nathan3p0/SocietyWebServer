@@ -6,7 +6,7 @@ const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const eventsRouter = require('./routes/events/events-router');
 const authRouter = require('./auth/auth-router');
-
+const teamMembersRouter = require('./routes/teamMembers/team-members-router');
 const signupRouter = require('./routes/signup/signup-router');
 
 
@@ -19,9 +19,10 @@ app.use(helmet());
 app.use(cors());
 
 
-app.use('/api/login', authRouter)
-app.use('/api/events', eventsRouter)
-app.use('/api/signup', signupRouter)
+app.use('/api/login', authRouter);
+app.use('/api/events', eventsRouter);
+app.use('/api/signup', signupRouter);
+app.use('/api/members', teamMembersRouter);
 
 
 const errorHandler = (error, req, res, next) => {
