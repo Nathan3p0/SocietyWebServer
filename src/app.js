@@ -8,6 +8,7 @@ const eventsRouter = require('./routes/events/events-router');
 const authRouter = require('./auth/auth-router');
 const teamMembersRouter = require('./routes/teamMembers/team-members-router');
 const signupRouter = require('./routes/signup/signup-router');
+const messageRouter = require('./routes/messages/messages-router');
 
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/login', authRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/signup', signupRouter);
 app.use('/api/members', teamMembersRouter);
+app.use('/api/message', messageRouter);
 
 
 const errorHandler = (error, req, res, next) => {

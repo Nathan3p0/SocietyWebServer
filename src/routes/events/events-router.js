@@ -74,13 +74,28 @@ eventsRouter.post('/', requireAuth, jsonBodyParser, (req, res, next) => {
         })
 })
 
+eventsRouter.get('/:id', requireAuth, (req, res, next) => {
+    const { id } = req.params;
+    const db = req.app.get('db');
+
+    eventsService.findEventById(db, id)
+        .then(event => {
+            if (!event) {
+                return res.status(404).json({
+                    error: 'There was no event found'
+                })
+            }
+
+            return res.status(200).json(eventsService.serializeEvent(event));
+        })
+})
+
 eventsRouter.get('/members', requireAuth, (req, res, next) => {
     const db = req.app.get('db');
     const { id } = req.user;
 
     eventsService.findGroupByUserId(db, id)
         .then(group => {
-            console.log(group)
             if (group.length === 0) {
                 return res.status(404).json({
                     error: `There was no group found.`
@@ -100,6 +115,32 @@ eventsRouter.get('/members', requireAuth, (req, res, next) => {
                     })
                 })
         })
+})
+
+eventsRouter.post('/members', requireAuth, jsonBodyParser, (req, res, next) => {
+    const { event_id, event_role } = req.body;
+    const db = req.app.get('db');
+    const member_id = req.user.id;
+
+    for (const field of ['event_id', 'event_role']) {
+        if (!req.body[field]) {
+            return res.status(400).json({
+                error: `You are missing ${field}`
+            })
+        }
+    }
+
+    const newRsvp = {
+        member_id: member_id,
+        event_id: event_id,
+        event_role: event_role
+    }
+
+    eventsService.postNewRsvp(db, newRsvp)
+        .then(rsvp => {
+            return res.status(201).json(rsvp)
+        })
+
 })
 
 eventsRouter.get('/members/:id', requireAuth, (req, res, next) => {

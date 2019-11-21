@@ -10,6 +10,11 @@ const eventsService = {
         return knex('events')
             .where('event_group', id)
     },
+    findEventById(knex, id) {
+        return knex('events')
+            .where('id', id)
+            .first()
+    },
     findGroupByUserId(knex, id) {
         return knex.select('groups.group_name', 'groups.id')
             .from('members')
@@ -32,6 +37,14 @@ const eventsService = {
             .join('member_events', { 'members.id': 'member_events.member_id' })
             .join('events', { 'member_events.event_id': 'events.id' })
             .where('member_events.event_id', id)
+    },
+    postNewRsvp(knex, newRsvp) {
+        return knex('member_events')
+            .insert(newRsvp)
+            .returning('*')
+            .then(([rsvp]) => {
+                return rsvp;
+            })
     },
     serializeEvent(event) {
         return {
