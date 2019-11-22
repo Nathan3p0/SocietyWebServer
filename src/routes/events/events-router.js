@@ -8,7 +8,7 @@ const eventsRouter = express.Router();
 eventsRouter.get('/members', requireAuth, (req, res, next) => {
     const db = req.app.get('db');
     const { id } = req.user;
-    console.log(id)
+
     eventsService.findGroupByUserId(db, id)
         .then(group => {
             if (group.length === 0) {
