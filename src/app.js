@@ -20,7 +20,7 @@ app.use(helmet());
 app.use(cors());
 
 
-app.use('/api/login', authRouter);
+app.use('/api/auth', authRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/signup', signupRouter);
 app.use('/api/members', teamMembersRouter);
