@@ -31,19 +31,26 @@ describe('Team Members', () => {
             })
     })
 
-    it('Responds with all Team Members for group', () => {
+    it('Responds with 200 when invite sent', () => {
         return authenticatedUser
             .set('Authorization', `bearer ${authToken}`)
-            .get('/api/members')
-            .expect('Content-Type', 'application/json; charset=utf-8')
+            .post('/api/message/invite')
+            .send({
+                phone: '734-673-5101'
+            })
             .expect(200)
     })
 
-    it('Responds with member info', () => {
+    it('Responds with 200 when email sent', () => {
         return authenticatedUser
             .set('Authorization', `bearer ${authToken}`)
-            .get('/api/members/member')
-            .expect('Content-Type', 'application/json; charset=utf-8')
+            .post('/api/message/email')
+            .send({
+                to: 'ndszelag@gmail.com',
+                from: 'nszelag@live.com',
+                subject: 'Testing1234',
+                text: 'This is just a test'
+            })
             .expect(200)
     })
 })
